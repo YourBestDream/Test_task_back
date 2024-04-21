@@ -3,12 +3,14 @@ import shutil
 import time
 import traceback
 from werkzeug.utils import secure_filename
+import datetime
 
 from flask import Blueprint, jsonify, request
 from langchain.document_loaders.generic import GenericLoader
 from langchain.document_loaders.parsers.audio import OpenAIWhisperParserLocal
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from .models import User
+from .models import User, History
+from . import db
 
 queries = Blueprint('queries', __name__)
 
@@ -77,7 +79,7 @@ def update_requests_and_history():
     user.remaining_requests = new_count
 
     # Add new history entry
-    history_entry = History(user_id=user.id, text=transcription, timestamp=datetime.utcnow())
+    history_entry = History(user_id=user.id, text=transcription, timestamp=datetime.datetime.utcnow())
     db.session.add(history_entry)
 
     try:
